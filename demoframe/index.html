@@ -16,19 +16,117 @@
     </menu>
 </menu>
 
+<script !src="">
+    var gridIndex = -1
+
+    function onKeyGrid(event) {
+        console.log(event.key)
+
+        if (event.key === 'ArrowLeft' || event.key === 'ArrowRight'
+            || event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+            event.preventDefault()
+
+            const grid = event.target
+            const elements = [...grid.querySelectorAll('div.panel-element, div.panel-element-selected')
+        ]
+
+            if (event.key === 'ArrowLeft') {
+                updateSelection(gridIndex - 1, elements)
+            } else if (event.key === 'ArrowRight') {
+                updateSelection(gridIndex + 1, elements)
+            } else if (event.key === 'ArrowDown') {
+                const cols = getColumnCount(elements)
+                updateSelection(gridIndex + cols, elements)
+            } else if (event.key === 'ArrowUp') {
+                const cols = getColumnCount(elements)
+                updateSelection(gridIndex - cols, elements)
+            }
+        }
+    }
+
+    function updateSelection(newIndex, elements) {
+        if (newIndex < 0) {
+            newIndex = elements.length - 1
+        }
+        if (gridIndex === -1 || newIndex >= elements.length) {
+            newIndex = 0
+        }
+        // alert(`${newIndex}, ${gridIndex}`)
+
+        if (gridIndex !== -1) {
+            elements[gridIndex].className = 'panel-element'
+        }
+        gridIndex = newIndex
+        if (gridIndex !== -1) {
+            elements[gridIndex].className = 'panel-element-selected'
+            scrollIntoViewIfNeeded(elements[gridIndex])
+        }
+
+        // const cols = getColumnCount(elements)
+        // const rows = getRowCount(elements)
+        // alert(`${cols}x${rows} grid with ${childsOfGrid.length} elements`)
+    }
+
+    function scrollIntoViewIfNeeded(element) {
+        const elementRect = element.getBoundingClientRect()
+        const grid = element.parentElement
+        const gridRect = grid.getBoundingClientRect()
+
+        // mydiv.offsetHeight or mydiv.clientHeight
+        // console.log(elementRect.top + ' - ' + grid.getBoundingClientRect().top)
+
+        if (elementRect.bottom > grid.clientHeight) {
+            element.scrollIntoView(false)
+        }
+        if (elementRect.top < gridRect.top) {
+            element.scrollIntoView(true)
+        }
+    }
+
+    function onClickGrid(event) {
+        const element = event.target
+        const grid = element.parentElement
+        const elements = [...grid.querySelectorAll('div.panel-element, div.panel-element-selected')
+    ]
+        const elementIndex = elements.indexOf(element)
+
+        updateSelection(elementIndex, elements)
+    }
+
+    function getColumnCount(elements) {
+        let columnCount = 0;
+        let lastTop;
+        for (let element of elements) {
+            const rect = element.getBoundingClientRect();
+            if (!lastTop || rect.top === lastTop) {
+                columnCount++
+            } else {
+                break
+            }
+            lastTop = rect.top
+        }
+        return columnCount;
+    }
+
+    function getRowCount(elements) {
+        return Math.ceil(elements.length / getColumnCount(elements))
+    }
+</script>
+
 <div class="panel-fullscreen">
-    <div class="panel-scrollable" contextmenu="menu">
+    <div class="panel-scrollable" contextmenu="menu" id="grid" tabindex="0" onkeypress="onKeyGrid(event)"
+         onclick="onClickGrid(event)">
         <div class="panel-element">1</div>
         <div class="panel-element">2</div>
         <div class="panel-element">1</div>
         <div class="panel-element">2</div>
         <div class="panel-element">1</div>
-        <div class="panel-element-selected">2</div>
-        <div class="panel-element">1</div>
         <div class="panel-element">2</div>
         <div class="panel-element">1</div>
         <div class="panel-element">2</div>
-        <div class="panel-element-selected">1</div>
+        <div class="panel-element">1</div>
+        <div class="panel-element">2</div>
+        <div class="panel-element">1</div>
         <div class="panel-element">2</div>
         <div class="panel-element">1</div>
         <div class="panel-element">2</div>

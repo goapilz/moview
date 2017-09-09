@@ -5,8 +5,8 @@ body {
 
 .panel-fullscreen {
     background: black;
-// height: 100 vh;
-// no position is needed / / width: 100 %;
+    /*height: 100vh; no position is needed */
+    /*width: 100%;*/
     position: absolute;
     top: 64px;
     left: 200px;
@@ -16,10 +16,10 @@ body {
 
 .panel-scrollable {
     background-color: #fff;
-// padding: 0;
-// margin: 0;
-// list-style-type: none;
-// justify-content: center;
+    /*padding: 0;*/
+    /*margin: 0;*/
+    /*list-style-type: none;*/
+    /*justify-content: center;*/
     display: flex;
     flex-wrap: wrap;
     width: 100%;
@@ -30,27 +30,40 @@ body {
 }
 
 .panel-element,
-.panel-element-selected {
+.panel-element-selected,
+.panel-element:hover,
+.panel-element-selected:hover {
     background-color: #444;
     color: #fff;
     border-radius: 5px;
     padding: 1pt;
-    margin: 0px;
+    margin: 1pt;
     width: 120pt;
     height: 180pt;
-// position: relative;
-// display: flex;
-// align-items: flex-end;
+    /*position: relative;*/
+    /*display: flex;*/
+    /*align-items: flex-end;*/
     border: 2px solid white;
 }
 
-.panel-element-selected {
+.panel-element:hover,
+.panel-element-selected:hover {
+    /*position: relative;*/
+    margin: 0pt;
+    width: 122pt;
+    height: 182pt;
+}
+
+.panel-element-selected,
+.panel-element-selected:hover {
     border: 2px solid red;
 }
+
 .panel-element:nth-child(2n+0) {
     background-color: #777;
     color: #000;
 }
+
 .panel-element:nth-child(3n+0) {
     background-color: #ccc;
     color: #000;
@@ -66,7 +79,7 @@ body {
 
 .mouseselection {
     position: absolute;
-    // background-color: #000;
+    /*background-color: #000;*/
     border: 2px dashed red;
     top: 0px;
     left: 0px;

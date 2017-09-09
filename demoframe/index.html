@@ -18,6 +18,74 @@
 
 <script !src="">
     var gridIndex = -1
+    var startPoint
+
+    function onMouseDownGrid(event) {
+        const element = event.target
+        const grid = element.parentElement
+        const selection = grid.querySelector('div.mouseselection')
+        const gridRect = grid.getBoundingClientRect()
+        selection.removeAttribute('hidden')
+        // const selectionRect = selection.getBoundingClientRect()
+        startPoint = {x: event.clientX + 2 - gridRect.left, y: event.clientY + 2 - gridRect.top}
+        selection.style.left = startPoint.x + "px"
+        selection.style.top = startPoint.y + "px"
+        selection.style.width = "0px"
+        selection.style.height = "0px"
+    }
+
+    function onMouseUpGrid(event) {
+        const element = event.target
+        const grid = element.parentElement
+        const selection = grid.querySelector('div.mouseselection')
+        const selectionRect = selection.getBoundingClientRect()
+        selection.setAttribute("hidden", true)
+        startPoint = undefined
+
+        const elements = [...grid.querySelectorAll('div.panel-element, div.panel-element-selected')
+    ]
+        for (const currentElement of elements) {
+            if (intersectRect(currentElement.getBoundingClientRect(), selectionRect)) {
+                currentElement.className = 'panel-element-selected'
+            }
+        }
+
+    }
+
+    function onMouseMoveGrid(event) {
+        if (startPoint) {
+            const element = event.target
+            const grid = element.parentElement
+            const selection = grid.querySelector('div.mouseselection')
+            const gridRect = grid.getBoundingClientRect()
+            const left = event.clientX - gridRect.left
+            const top = event.clientY - gridRect.top
+            let newWidth = left - startPoint.x
+            let newHeight = top - startPoint.y
+
+            const newLeft = newWidth < 0 ? left : startPoint.x
+            if (newWidth < 0) {
+                newWidth = startPoint.x - left
+            }
+            newWidth -= 2;
+            const newTop = newHeight < 0 ? top : startPoint.y
+            if (newHeight < 0) {
+                newHeight = startPoint.y - top
+            }
+            newHeight -= 2;
+            selection.style.left = newLeft + "px"
+            selection.style.top = newTop + "px"
+            selection.style.width = newWidth + "px"
+            selection.style.height = newHeight + "px"
+        }
+    }
+
+    function intersectRect(r1, r2) {
+        return !(r2.left > r1.right ||
+            r2.right < r1.left ||
+            r2.top > r1.bottom ||
+            r2.bottom < r1.top);
+    }
 
     function onKeyGrid(event) {
         console.log(event.key)
@@ -31,30 +99,39 @@
         ]
 
             if (event.key === 'ArrowLeft') {
-                updateSelection(gridIndex - 1, elements)
+                updateSelection(gridIndex - 1, elements, false)
             } else if (event.key === 'ArrowRight') {
-                updateSelection(gridIndex + 1, elements)
+                updateSelection(gridIndex + 1, elements, false)
             } else if (event.key === 'ArrowDown') {
                 const cols = getColumnCount(elements)
-                updateSelection(gridIndex + cols, elements)
+                updateSelection(gridIndex + cols, elements, false)
             } else if (event.key === 'ArrowUp') {
                 const cols = getColumnCount(elements)
-                updateSelection(gridIndex - cols, elements)
+                updateSelection(gridIndex - cols, elements, false)
             }
         }
     }
 
-    function updateSelection(newIndex, elements) {
+    function updateSelection(newIndex, elements, holdSelection) {
+        if (gridIndex === -1 && !newIndex) {
+            newIndex = 0
+        }
         if (newIndex < 0) {
             newIndex = elements.length - 1
         }
-        if (gridIndex === -1 || newIndex >= elements.length) {
+        if (newIndex >= elements.length) {
             newIndex = 0
         }
         // alert(`${newIndex}, ${gridIndex}`)
 
-        if (gridIndex !== -1) {
-            elements[gridIndex].className = 'panel-element'
+        // only remember selection if ctrl was not pressed
+        if (!holdSelection) {
+            for (const currentElement of elements) {
+                console.log('clear')
+                currentElement.className = 'panel-element'
+            }
+        } else if (gridIndex !== -1) {
+            // elements[gridIndex].className = 'panel-element'
         }
         gridIndex = newIndex
         if (gridIndex !== -1) {
@@ -90,7 +167,7 @@
     ]
         const elementIndex = elements.indexOf(element)
 
-        updateSelection(elementIndex, elements)
+        updateSelection(elementIndex, elements, event.ctrlKey)
     }
 
     function getColumnCount(elements) {
@@ -114,8 +191,11 @@
 </script>
 
 <div class="panel-fullscreen">
-    <div class="panel-scrollable" contextmenu="menu" id="grid" tabindex="0" onkeypress="onKeyGrid(event)"
+    <div class="panel-scrollable" contextmenu="menu" id="grid" onmousedown="onMouseDownGrid(event)"
+         onmouseup="onMouseUpGrid(event)" onmousemove="onMouseMoveGrid(event)" tabindex="0"
+         onkeypress="onKeyGrid(event)"
          onclick="onClickGrid(event)">
+        <div class="mouseselection" hidden></div>
         <div class="panel-element">1</div>
         <div class="panel-element">2</div>
         <div class="panel-element">1</div>
